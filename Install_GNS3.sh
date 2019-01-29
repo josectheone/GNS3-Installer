@@ -2,10 +2,8 @@
 # Script para Instalar GNS3 e dependencias em distribuçoes baseadas no debian
 
 echo 'Adicionando suporte a PPA'
-# Create add-apt-repository script in /usr/sbin
 sudo cat <<EOT >> /usr/sbin/add-apt-repository
 #!/bin/bash
-# SCRIPT add-apt-repository
 if [ $# -eq 1 ]
 NM=`uname -a && date`
 NAME=`echo $NM | md5sum | cut -f1 -d" "`
@@ -57,7 +55,7 @@ echo 'Creando interface TAP'
 sudo cat <<EOT >> /etc/network/interfaces
 auto tap0
 iface tap0 inet static
-	address	172.31.1.254
+	address	172.16.1.254
 	netmask	255.255.255.0
 	pre-up	/sbin/ip tuntap add dev tap0 mode tap
 	post-down /sbin/ip tuntap del dev tap0 mode tap
@@ -71,14 +69,13 @@ sudo echo 1 > /proc/sys/net/ipv4/ip_forward
 sudo echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf
 
 echo 'Creando regras no Firewall'
-sudo iptables -t nat -A POSTROUTING -s 172.31.1.0/24 ! -d 172.31.1.0/24 -j MASQUERADE
+sudo iptables -t nat -A POSTROUTING -s 172.16.1.0/24 ! -d 172.16.1.0/24 -j MASQUERADE
 sudo netfilter-persistent save
 
 echo 'Configurando servidor DHCP para GNS3'
 sudo cat <<EOT >> /etc/dnsmasq.d/tap0.conf
-# Configuration file for dnsmasq on tap0 interface
 interface=tap0
-dhcp-range=172.31.1.100,172.31.1.249,1h
+dhcp-range=172.16.1.100,172.16.1.150,1h
 EOT
 
 echo 'Reiniciando dnsmasq'

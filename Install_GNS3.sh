@@ -83,6 +83,7 @@ EOT
 
 echo 'Reiniciando dnsmasq'
 sudo service dnsmasq restart
+sudo update-rc.d dnsmasq defaults
 
 echo 'Processo completado, pode iniciar GNS3'
 echo 'Script creado por Josectheone'

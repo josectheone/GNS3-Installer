@@ -83,6 +83,14 @@ EOF
 			echo 'net.ipv4.ip_forward=1' >>/etc/sysctl.conf
 			iptables -t nat -A POSTROUTING -s 172.16.1.0/24 ! -d 172.16.1.0/24 -j MASQUERADE
 			netfilter-persistent save
+			
+			cat >/etc/dnsmasq.d/tap0.conf <<'EOF'
+				interface=tap0
+				dhcp-range=172.16.1.100,172.16.1.150,1h
+EOF
+
+			sudo service dnsmasq restart
+			sudo update-rc.d dnsmasq defaults
 		fi
 		break
 		;;
@@ -94,6 +102,8 @@ EOF
 		;;
 	esac
 done
+
+sudo usermod -a -G ubridge,libvirt,kvm $USER
 
 echo "Proceso completado com sucesso"
 echo "Reinicie o computador para antes de usar GNS3"

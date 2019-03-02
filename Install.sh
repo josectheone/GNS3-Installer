@@ -106,4 +106,4 @@ done
 sudo usermod -a -G ubridge,libvirt,kvm $USER
 
 echo "Proceso completado com sucesso"
-echo "Reinicie o computador para antes de usar GNS3"
+echo "Reinicie o computador antes de usar GNS3"

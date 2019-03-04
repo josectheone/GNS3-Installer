@@ -71,12 +71,12 @@ while true; do
 			break
 		else
 			cat >/etc/network/interfaces <<'EOF'
-				auto tap0
-				iface tap0 inet static
-					address	172.16.1.254
-					netmask	255.255.255.0
-					pre-up	/sbin/ip tuntap add dev tap0 mode tap
-					post-down /sbin/ip tuntap del dev tap0 mode tap
+auto tap0
+iface tap0 inet static
+address	172.16.1.254
+netmask	255.255.255.0
+pre-up	/sbin/ip tuntap add dev tap0 mode tap
+post-down /sbin/ip tuntap del dev tap0 mode tap
 EOF
 			ifup tap0
 			echo 1 >/proc/sys/net/ipv4/ip_forward
@@ -85,8 +85,8 @@ EOF
 			netfilter-persistent save
 			
 			cat >/etc/dnsmasq.d/tap0.conf <<'EOF'
-				interface=tap0
-				dhcp-range=172.16.1.100,172.16.1.150,1h
+interface=tap0
+dhcp-range=172.16.1.100,172.16.1.150,1h
 EOF
 
 			sudo service dnsmasq restart

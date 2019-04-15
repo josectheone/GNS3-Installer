@@ -66,7 +66,7 @@ while true; do
 	read -r -p "Deseja configurar uma interface TAP com forwarding e NAT? [Y/n] " input1
 	case $input1 in
 	[yY][eE][sS] | [yY])
-
+		apt-get install iptables-persistent dnsmasq
 		if ($( cat /etc/network/interfaces | grep -q "tap0" )); then
 			break
 		else

@@ -1,6 +1,7 @@
 # gns3-installer
 
-activa suporte PPA em Debian e deepin<br>
-instala GNS3<br>
+activa suporte ppa em debian e deepin<br>
+instala gns3<br>
+activa nat na interface tap<br>
 instala dnsmasq para oferecer dhcp<br>
-cria um tunel TAP para usar no GNS3<br>
+cria um tunel tap para usar no gns3<br>

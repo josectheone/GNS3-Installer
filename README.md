@@ -1,6 +1,6 @@
-# GNS3
-Autoinstall Script 
+# gns3-installer
 
-Instala GNS3<br>
-Instala dnsmasq para oferecer dhcp<br>
-Crea um tunel TAP para usar no GNS3<br>
+activa suporte PPA em Debian e deepin<br>
+instala GNS3<br>
+instala dnsmasq para oferecer dhcp<br>
+cria um tunel TAP para usar no GNS3<br>

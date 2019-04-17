@@ -1,18 +1,8 @@
 #! /bin/bash
-
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+# Author: Jose Carlos Mendez Pena
+# contact email: josectheone@gmail.com 
+#
 
 if [[ $UID != 0 ]]; then
         echo "Please, execute this script as root:"
@@ -22,26 +12,26 @@ fi
 
 clear
 
-function Install {
+################################
+#---- Functions start here ----# 
+################################
+
+Install() {
         if ls /etc/apt/sources.list.d/gns3-ubuntu-ppa* &> /dev/null 
         then
-                apt update && apt -y install gns3-gui tigervnc-viewer
+                apt-get update && apt -y install gns3-gui tigervnc-viewer
                 usermod -a -G ubridge,libvirt,kvm,wireshark $USER
                 whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "Done, remember to logout before using GNS3." 10 60
         else
-                add-apt-repository -y ppa:gns3/ppa && apt update && apt -y install gns3-gui tigervnc-viewer
+                add-apt-repository -y ppa:gns3/ppa && apt-get update && apt -y install gns3-gui tigervnc-viewer
                 usermod -a -G ubridge,libvirt,kvm,wireshark $USER
                 whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "Done, remember to logout before using GNS3." 10 60
         fi 
 }
 
-function TAP {
-        if ($( cat /etc/network/interfaces | grep -q "tap0" ))
-        then
-                whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "TAP interface already configured." 10 60
-        else
-                apt -y install iptables-persistent dnsmasq
-                cat >/etc/network/interfaces << EOF
+TAP() {
+        apt -y install iptables-persistent dnsmasq
+        cat >/etc/network/interfaces << EOF
 auto tap0
 iface tap0 inet static
 address $netvarc.1
@@ -61,15 +51,10 @@ EOF
         sudo service dnsmasq restart
         sudo update-rc.d dnsmasq defaults
         whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "Done, run ifconfig to test the tap interface." 10 60
-        fi
 }
 
-function PPA {
-        if [ -f /usr/bin/add-apt-repository ]
-        then
-                whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "PPA already configured in this system." 10 60
-        else
-                cat >/usr/sbin/add-apt-repository << "EOF"
+PPA() {
+        cat >/usr/sbin/add-apt-repository << "EOF"
 #!/bin/bash
 # SCRIPT add-apt-repository
 if [ $# -eq 1 ] 
@@ -94,39 +79,65 @@ else
         echo "$0 ppa:user/ppa-name"
 fi
 EOF
-                chmod 755 /usr/sbin/add-apt-repository
-                whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "Done, now you can install GNS3." 10 60
-        fi
+        chmod 755 /usr/sbin/add-apt-repository
+        whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "Done, now you can install GNS3." 10 60
 }
+
+################################
+#---- Main code start here ----# 
+################################
 
 while [ 1 ]
 do
 CHOICE=$(
 whiptail --title "Main menu" --backtitle "GNS3 Installer" --menu "Make your choice" 15 50 4\
         "1)" "Install GNS3 network simulator." \
-        "2)" "Setup NAT - DHCP-SERVER - TAP interface." \
+        "2)" "Setup TAP interface with NAT and DHCP-SERVER." \
         "3)" "Setup PPA in Debian and Deepin distros." \
-        "4)" "End script."  3>&2 2>&1 1>&3
+        "4)" "End script." 3>&2 2>&1 1>&3
         )
 
 case $CHOICE in
-        "1)")   
-                Install
+        "1)")
+                apt list gns3-gui | grep installed &>/dev/null
+                if [ $? != 1 ]; 
+                then
+                        whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "GNS3 already installed in this system." 10 60
+                else
+                        Install
+                fi
         ;;
 
         "2)")   
-                whiptail --title "TAP interface configuration" --backtitle "GNS3 Installer" \
-                        --inputbox "\n Input network address for the interface:\n Example 192.168.0.0\n The interface adddress will be 192.168.0.1\n The dhcp pool will be 192.168.0.100-150\n" 12 50 2> /tmp/inputvar
-                netvar=$(</tmp/inputvar)
-                netvarc=${netvar%??};
-                TAP
+                if ($( cat /etc/network/interfaces | grep -q "tap0" ))
+                then
+                        whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "TAP interface already configured." 10 60
+                else
+                        netvar=$(whiptail --title "TAP interface configuration" --backtitle "GNS3 Installer" \
+                        --inputbox "Input network address for the interface:\n \n Example 192.168.0.0" 12 50 3>&1 1>&2 2>&3)
+                        netvarc=${netvar%??};
+                whiptail --msgbox "Awesome your setup will be: \n \n \
+                # tap interface\n \
+                ip address = $netvarc.1\n \
+                netmask    = 255.255.255.0\n \
+                network    = $netvar\n \
+                broadcast  = $netvarc.255\n \
+                dhcp-range = $netvarc.100 - $netvarc.150" 15 70
+                        TAP
+                fi
         ;;
 
         "3)")   
-                PPA
+                if [ -f /usr/sbin/add-apt-repository ]
+                then
+                        whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "PPA already configured in this system." 10 60
+                else
+                        PPA
+                fi
         ;;
 
-        "4)") exit
+        "4)")   
+                exit
         ;;
 esac
 done

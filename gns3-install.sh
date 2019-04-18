@@ -4,11 +4,8 @@
 # Contact email: josectheone@ g m a i l .com 
 #
 if [[ $UID != 0 ]]; then
-        echo "Please, execute this script as root:"
-        echo "sudo $0 $*"
-        exit 1
+        exec sudo -- "$0" "$@"
 fi
-
 clear
 
 ################################

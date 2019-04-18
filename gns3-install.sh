@@ -1,9 +1,8 @@
 #! /bin/bash
 #
 # Author: Jose Carlos Mendez Pena
-# contact email: josectheone@gmail.com 
+# Contact email: josectheone@ g m a i l .com 
 #
-
 if [[ $UID != 0 ]]; then
         echo "Please, execute this script as root:"
         echo "sudo $0 $*"
@@ -17,14 +16,14 @@ clear
 ################################
 
 Install() {
-        if ls /etc/apt/sources.list.d/gns3-ubuntu-ppa* &> /dev/null 
-        then
+        ls /etc/apt/sources.list.d/gns3-ubuntu-ppa* &> /dev/null
+        if [[ $? == 0 ]]; then
                 apt-get update && apt -y install gns3-gui tigervnc-viewer
-                usermod -a -G ubridge,libvirt,kvm,wireshark $USER
+                usermod -a -G ubridge,libvirt,kvm,wireshark "$USER"
                 whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "Done, remember to logout before using GNS3." 10 60
         else
                 add-apt-repository -y ppa:gns3/ppa && apt-get update && apt -y install gns3-gui tigervnc-viewer
-                usermod -a -G ubridge,libvirt,kvm,wireshark $USER
+                usermod -a -G ubridge,libvirt,kvm,wireshark "$USER"
                 whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "Done, remember to logout before using GNS3." 10 60
         fi 
 }
@@ -42,7 +41,7 @@ EOF
         ifup tap0
         echo 1 >/proc/sys/net/ipv4/ip_forward
         echo 'net.ipv4.ip_forward=1' >>/etc/sysctl.conf
-        iptables -t nat -A POSTROUTING -s $netvar/24 ! -d $netvar/24 -j MASQUERADE
+        iptables -t nat -A POSTROUTING -s "$netvar"/24 ! -d "$netvar"/24 -j MASQUERADE
         netfilter-persistent save
         cat >/etc/dnsmasq.d/tap0.conf << EOF
 interface=tap0
@@ -57,7 +56,7 @@ PPA() {
         cat >/usr/sbin/add-apt-repository << "EOF"
 #!/bin/bash
 # SCRIPT add-apt-repository
-if [ $# -eq 1 ] 
+if [ $# -eq 1 ]
 NM=$(uname -a && date) NAME=$(echo $NM | md5sum | cut -f1 -d" ")
 then
         ppa_name=$(echo "$1" | cut -d":" -f2 -s)
@@ -87,58 +86,53 @@ EOF
 #---- Main code start here ----# 
 ################################
 
-while [ 1 ]
-do
-CHOICE=$(
-whiptail --title "Main menu" --backtitle "GNS3 Installer" --menu "Make your choice" 15 50 4\
-        "1)" "Install GNS3 network simulator." \
-        "2)" "Setup TAP interface with NAT and DHCP-SERVER." \
-        "3)" "Setup PPA in Debian and Deepin distros." \
-        "4)" "End script." 3>&2 2>&1 1>&3
-        )
+while true; do
+        CHOICE=$(whiptail --title "Main menu" --backtitle "GNS3 Installer" --menu "Make your choice" 15 50 4\
+                "1)" "Install GNS3 network simulator."\
+                "2)" "Setup TAP interface with NAT and DHCP-SERVER."\
+                "3)" "Setup PPA in Debian and Deepin distros."\
+                "4)" "End script." 3>&2 2>&1 1>&3)
 
-case $CHOICE in
-        "1)")
+        case $CHOICE in
+                "1)" )
                 apt list gns3-gui | grep installed &>/dev/null
-                if [ $? != 1 ]; 
-                then
+                if [[ $? != 1 ]]; then
                         whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "GNS3 already installed in this system." 10 60
                 else
                         Install
                 fi
-        ;;
+                ;;
 
-        "2)")   
-                if ($( cat /etc/network/interfaces | grep -q "tap0" ))
-                then
-                        whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "TAP interface already configured." 10 60
+                "2)")   
+                grep -q "tap0" /etc/network/interfaces
+                if [[ $? == 0 ]]; then
+                        whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "TAP interface already configured." 10 100
                 else
                         netvar=$(whiptail --title "TAP interface configuration" --backtitle "GNS3 Installer" \
-                        --inputbox "Input network address for the interface:\n \n Example 192.168.0.0" 12 50 3>&1 1>&2 2>&3)
+                        --inputbox "Input network address for the interface:\\n \\n Example 192.168.0.0" 12 50 3>&1 1>&2 2>&3)
                         netvarc=${netvar%??};
-                whiptail --msgbox "Awesome your setup will be: \n \n \
-                # tap interface\n \
-                ip address = $netvarc.1\n \
-                netmask    = 255.255.255.0\n \
-                network    = $netvar\n \
-                broadcast  = $netvarc.255\n \
-                dhcp-range = $netvarc.100 - $netvarc.150" 15 70
+                        whiptail --msgbox "Awesome your setup will be: \\n \\n \
+                        # tap interface\\n \
+                        ip address = $netvarc.1\\n \
+                        netmask    = 255.255.255.0\\n \
+                        network    = $netvar\\n \
+                        broadcast  = $netvarc.255\\n \
+                        dhcp-range = $netvarc.100 - $netvarc.150" 15 100
                         TAP
                 fi
-        ;;
+                ;;
 
-        "3)")   
-                if [ -f /usr/bin/add-apt-repository ]
-                then
+                "3)")   
+                if [[ -e /usr/bin/add-apt-repository ]]; then
                         whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "PPA already configured in this system." 10 60
                 else
                         PPA
                 fi
-        ;;
+                ;;
 
-        "4)")   
+                "4)")   
                 exit
-        ;;
-esac
+                ;;
+        esac
 done
 exit

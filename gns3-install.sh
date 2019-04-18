@@ -128,7 +128,7 @@ case $CHOICE in
         ;;
 
         "3)")   
-                if [ -f /usr/sbin/add-apt-repository ]
+                if [ -f /usr/bin/add-apt-repository ]
                 then
                         whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "PPA already configured in this system." 10 60
                 else

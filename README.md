@@ -1,3 +1,9 @@
-Easy GNS3 install script.<br>
-Unpack, and give execution permissions chmod +x gns3-install.sh<br>
-enjoy.
+**Screenshot**
+![Screenshot](screenshot.png)
+
+**Easy GNS3 install script**
+Unpack, give execution permissions.
+
+```
+chmod +x gns3-installer.sh
+```

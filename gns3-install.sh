@@ -104,17 +104,9 @@ while true; do
 			if [[ $? == 0 ]]; then
 				whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "TAP interface already configured." 10 100
 			else
-				netvar=$(whiptail --title "TAP interface configuration" --backtitle "GNS3 Installer" \
-								--inputbox "Input network address for the interface:\\n \
-								\\n Example 192.168.0.0" 12 50 3>&1 1>&2 2>&3)
+				netvar=$(whiptail --title "TAP interface configuration" --backtitle "GNS3 Installer" --inputbox "Input network address for the interface:\\n \\n Example 192.168.0.0" 12 50 3>&1 1>&2 2>&3)
 				netvarc=${netvar%??};
-				whiptail --msgbox "Awesome your setup will be: \\n \\n \
-								# tap interface\\n \
-								ip address = $netvarc.1\\n \
-								netmask    = 255.255.255.0\\n \
-								network    = $netvar\\n \
-								broadcast  = $netvarc.255\\n \
-								dhcp-range = $netvarc.100 - $netvarc.150" 15 100
+				whiptail --msgbox "Awesome your setup will be:\\n \\n #tap interface\\n ip address = $netvarc.1\\n netmask    = 255.255.255.0\\n network    = $netvar\\n broadcast  = $netvarc.255\\n	dhcp-range = $netvarc.100 - $netvarc.150" 15 100
 				TAP
 			fi
 			;;

@@ -16,11 +16,11 @@ clear
 Install() {
 	ls /etc/apt/sources.list.d/gns3-ubuntu-ppa* &> /dev/null
 	if [[ $? == 0 ]]; then
-		apt-get update && apt -y install gns3-gui tigervnc-viewer
+		apt -y install gns3-gui tigervnc-viewer
 		usermod -a -G ubridge,libvirt,kvm,wireshark "$USER"
 		whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "Done, remember to logout before using GNS3." 10 60
 	else
-		add-apt-repository -y ppa:gns3/ppa && apt-get update && apt -y install gns3-gui tigervnc-viewer
+		add-apt-repository -y ppa:gns3/ppa && apt -y install gns3-gui tigervnc-viewer
 		usermod -a -G ubridge,libvirt,kvm,wireshark "$USER"
 		whiptail --title "Information" --backtitle "GNS3 Installer" --msgbox "Done, remember to logout before using GNS3." 10 60
 	fi 

@@ -39,7 +39,7 @@ TAP() {
 		ifup tap0
 		echo 1 >/proc/sys/net/ipv4/ip_forward
 		echo 'net.ipv4.ip_forward=1' >>/etc/sysctl.conf
-		iptables -t nat -A POSTROUTING -s "$netvar"/24 ! -d "$netvar"/24 -j MASQUERADE
+		iptables -F && iptables -X && iptables -t nat -F && iptables -t nat -X && iptables -t mangle -F && iptables -t mangle -X && iptables -P INPUT ACCEPT && iptables -P FORWARD ACCEPT && iptables -P OUTPUT ACCEPT && iptables -t nat -A POSTROUTING -s "$netvar"/24 ! -d "$netvar"/24 -j MASQUERADE
 		netfilter-persistent save
 		cat >/etc/dnsmasq.d/tap0.conf <<-EOF
 		interface=tap0

@@ -1,8 +1,5 @@
 #! /bin/bash
-#
-# Author: Jose Carlos Mendez Pena
-# Contact email: josectheone@ g m a i l .com 
-#
+
 if [[ $UID != 0 ]]; then
 	exec sudo -- "$0" "$@"
 fi
